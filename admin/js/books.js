@@ -163,4 +163,96 @@ async function fetchSelectedBooks() {
 // Initialize select all functionality
 document.getElementById('selectAll')?.addEventListener('change', (e) => {
     document.querySelectorAll('.book-select').forEach(cb => cb.checked = e.target.checked);
-}); 
+});
+
+// View book details function
+function viewBookDetails(index) {
+    const book = currentBooks[index];
+    
+    // Create modal HTML
+    const modalHtml = `
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50" id="bookDetailModal">
+            <div class="bg-white rounded-2xl shadow-xl max-w-4xl w-full mx-4">
+                <div class="flex justify-between items-center p-6 border-b">
+                    <h3 class="text-2xl font-semibold text-gray-800">Book Details</h3>
+                    <button onclick="closeBookDetails()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <div class="p-6">
+                    <div class="flex gap-8">
+                        <div class="w-1/3">
+                            <img src="https://covers.openlibrary.org/b/id/${book.cover_i}-L.jpg" 
+                                 class="w-full rounded-lg shadow-lg object-cover"
+                                 onerror="this.src='../assets/images/no-cover.png'">
+                        </div>
+                        
+                        <div class="w-2/3 space-y-4">
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-500">Title</h4>
+                                <p class="text-lg font-medium text-gray-900">${book.title}</p>
+                            </div>
+                            
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-500">Author</h4>
+                                <p class="text-gray-800">${book.author_name?.[0] || 'Unknown'}</p>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">Language</h4>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        ${book.language || 'Unknown'}
+                                    </span>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">Published Year</h4>
+                                    <p class="text-gray-800">${book.first_publish_year || 'N/A'}</p>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">ISBN</h4>
+                                    <p class="text-gray-800">${book.isbn?.[0] || 'N/A'}</p>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-500">Publisher</h4>
+                                    <p class="text-gray-800">${book.publisher?.[0] || 'N/A'}</p>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-500">Description</h4>
+                                <p class="text-gray-800 mt-1">${book.description || 'No description available'}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end gap-4 p-6 border-t bg-gray-50 rounded-b-2xl">
+                    <button onclick="closeBookDetails()" 
+                            class="px-4 py-2 text-gray-700 hover:text-gray-900">
+                        Close
+                    </button>
+                    <button onclick="fetchSelectedBooks([${index}])" 
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        Add to Library
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Add modal to body
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+// Close book details modal
+function closeBookDetails() {
+    const modal = document.getElementById('bookDetailModal');
+    if (modal) {
+        modal.remove();
+    }
+} 
