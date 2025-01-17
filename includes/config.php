@@ -3,7 +3,10 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-session_start();
+// Start session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Database configuration
 define('DB_HOST', 'localhost');
@@ -21,26 +24,3 @@ try {
 } catch(PDOException $e) {
     die(json_encode(['error' => 'Connection failed: ' . $e->getMessage()]));
 }
-
-// Common functions
-function isLoggedIn() {
-    return isset($_SESSION['user_id']);
-}
-
-function isAdmin() {
-    return isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
-}
-
-function redirectIfNotLoggedIn() {
-    if (!isLoggedIn()) {
-        header("Location: login.php");
-        exit;
-    }
-}
-
-function redirectIfNotAdmin() {
-    if (!isAdmin()) {
-        header("Location: index.php");
-        exit;
-    }
-} 

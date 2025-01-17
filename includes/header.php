@@ -1,3 +1,13 @@
+<?php
+// Start the session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Include required files
+require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/functions.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -37,11 +47,21 @@
 
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <a href="login.php" class="text-gray-700 hover:text-gray-900 px-3 py-2">Login</a>
-                        <a href="register.php" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Register</a>
+                        <?php if (!isLoggedIn()): ?>
+                            <a href="<?php echo getBaseUrl(); ?>login.php" class="text-gray-700 hover:text-gray-900 px-3 py-2">Login</a>
+                            <a href="<?php echo getBaseUrl(); ?>register.php" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Register</a>
+                        <?php else: ?>
+                            <div class="flex items-center space-x-4">
+                                <span class="text-gray-700">Welcome, <?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
+                                <?php if ($_SESSION['user_role'] === 'admin'): ?>
+                                    <a href="<?php echo getBaseUrl(); ?>admin/dashboard.php" class="text-blue-600 hover:text-blue-700">Dashboard</a>
+                                <?php endif; ?>
+                                <a href="<?php echo getBaseUrl(); ?>logout.php" class="text-red-600 hover:text-red-700">Logout</a>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
         </div>
     </nav>
-<?php endif; ?> 
+<?php endif; ?>
