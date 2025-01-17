@@ -116,6 +116,7 @@ include '../includes/header.php';
                                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase">Language</th>
                                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase">ISBN</th>
                                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase">Published</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase">Pages</th>
                                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase">Actions</th>
                             </tr>
                         </thead>
