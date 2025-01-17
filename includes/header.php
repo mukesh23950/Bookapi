@@ -16,92 +16,138 @@
 </head>
 <body class="font-[Poppins] flex flex-col min-h-screen bg-gray-50">
     <!-- Navbar -->
-    <nav class="bg-white shadow-lg">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="flex justify-between">
-                <div class="flex space-x-7">
-                    <!-- Website Logo -->
-                    <div class="flex items-center py-4">
-                        <a href="/" class="text-2xl font-bold text-blue-600">
-                            Online Library
+    <nav class="bg-white border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Logo and Primary Nav -->
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="/" class="text-2xl font-bold text-blue-600 flex items-center space-x-2">
+                            <i class="fas fa-book-reader"></i>
+                            <span>Online Library</span>
                         </a>
                     </div>
-                    <!-- Primary Navbar items -->
-                    <div class="hidden md:flex items-center space-x-1">
-                        <a href="index.php" class="py-4 px-2 text-gray-500 hover:text-blue-600 transition duration-300">Home</a>
-                        <a href="books.php" class="py-4 px-2 text-gray-500 hover:text-blue-600 transition duration-300">Books</a>
-                        <a href="categories.php" class="py-4 px-2 text-gray-500 hover:text-blue-600 transition duration-300">Categories</a>
-                        <a href="about.php" class="py-4 px-2 text-gray-500 hover:text-blue-600 transition duration-300">About</a>
+                    <!-- Desktop Navigation -->
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a href="index.php" 
+                           class="<?php echo $_SERVER['PHP_SELF'] == '/index.php' ? 'border-blue-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'; ?> 
+                           inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Home
+                        </a>
+                        <a href="books.php"
+                           class="<?php echo $_SERVER['PHP_SELF'] == '/books.php' ? 'border-blue-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'; ?> 
+                           inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Books
+                        </a>
+                        <a href="categories.php"
+                           class="<?php echo $_SERVER['PHP_SELF'] == '/categories.php' ? 'border-blue-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'; ?> 
+                           inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Categories
+                        </a>
+                        <a href="about.php"
+                           class="<?php echo $_SERVER['PHP_SELF'] == '/about.php' ? 'border-blue-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'; ?> 
+                           inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            About
+                        </a>
                     </div>
                 </div>
-                <!-- Secondary Navbar items -->
-                <div class="hidden md:flex items-center space-x-3">
+
+                <!-- Search Bar and Auth Buttons -->
+                <div class="flex items-center space-x-4">
                     <!-- Search Bar -->
-                    <div class="relative">
-                        <input type="text" class="w-64 p-2 pl-8 rounded-lg border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent" placeholder="Search books...">
-                        <svg class="w-4 h-4 absolute left-2.5 top-3.5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                        </svg>
-                    </div>
-                    
-                    <?php if (isset($_SESSION['user_id'])): ?>
-                        <!-- User Dropdown -->
-                        <div class="relative group">
-                            <button class="flex items-center space-x-2 text-gray-700 hover:text-blue-600 focus:outline-none">
-                                <span><?php echo $_SESSION['user_name']; ?></span>
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
-                            <div class="absolute right-0 w-48 mt-2 py-2 bg-white rounded-lg shadow-xl hidden group-hover:block">
-                                <a href="<?php echo $_SESSION['user_role'] === 'admin' ? '/admin/dashboard.php' : '/user/dashboard.php'; ?>" 
-                                   class="block px-4 py-2 text-gray-800 hover:bg-blue-500 hover:text-white">
-                                    Dashboard
-                                </a>
-                                <a href="/logout.php" 
-                                   class="block px-4 py-2 text-gray-800 hover:bg-blue-500 hover:text-white">
-                                    Logout
-                                </a>
+                    <div class="hidden md:block">
+                        <div class="relative">
+                            <input type="text" 
+                                   class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block pl-10 p-2.5" 
+                                   placeholder="Search books...">
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                <i class="fas fa-search text-gray-400"></i>
                             </div>
                         </div>
-                    <?php else: ?>
-                        <!-- Login/Register Buttons -->
-                        <a href="login.php" class="py-2 px-4 text-gray-500 hover:text-blue-600 transition duration-300">Login</a>
-                        <a href="register.php" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300 shadow-md hover:shadow-lg">
+                    </div>
+
+                    <!-- Auth Buttons -->
+                    <?php if (!isset($_SESSION['user_id'])): ?>
+                        <a href="login.php" 
+                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-600 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Sign in
+                        </a>
+                        <a href="login.php?tab=register" 
+                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                             Register
                         </a>
+                    <?php else: ?>
+                        <!-- User Dropdown -->
+                        <div class="relative inline-block text-left">
+                            <button type="button" 
+                                    class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" 
+                                    id="user-menu-button">
+                                <span class="mr-2"><?php echo $_SESSION['user_name']; ?></span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+
+                            <!-- Dropdown Menu -->
+                            <div class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100" 
+                                 id="user-dropdown">
+                                <div class="py-1">
+                                    <a href="<?php echo $_SESSION['user_role'] === 'admin' ? 'admin/dashboard.php' : 'profile.php'; ?>" 
+                                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <?php echo $_SESSION['user_role'] === 'admin' ? 'Dashboard' : 'Profile'; ?>
+                                    </a>
+                                </div>
+                                <div class="py-1">
+                                    <a href="logout.php" 
+                                       class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                                        Sign out
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     <?php endif; ?>
-                </div>
-                
-                <!-- Mobile menu button -->
-                <div class="md:hidden flex items-center">
-                    <button class="outline-none mobile-menu-button">
-                        <svg class="w-6 h-6 text-gray-500 hover:text-blue-600"
-                            fill="none" stroke-linecap="round" 
-                            stroke-linejoin="round" stroke-width="2" 
-                            viewBox="0 0 24 24" stroke="currentColor">
-                            <path d="M4 6h16M4 12h16M4 18h16"></path>
-                        </svg>
+
+                    <!-- Mobile menu button -->
+                    <button type="button" 
+                            class="sm:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500" 
+                            id="mobile-menu-button">
+                        <i class="fas fa-bars"></i>
                     </button>
                 </div>
             </div>
         </div>
-        <!-- Mobile Menu -->
-        <div class="hidden mobile-menu md:hidden">
-            <ul class="px-4 py-3 space-y-2">
-                <li><a href="index.php" class="block text-sm px-2 py-4 hover:bg-blue-600 hover:text-white transition duration-300">Home</a></li>
-                <li><a href="books.php" class="block text-sm px-2 py-4 hover:bg-blue-600 hover:text-white transition duration-300">Books</a></li>
-                <li><a href="categories.php" class="block text-sm px-2 py-4 hover:bg-blue-600 hover:text-white transition duration-300">Categories</a></li>
-                <li><a href="about.php" class="block text-sm px-2 py-4 hover:bg-blue-600 hover:text-white transition duration-300">About</a></li>
-                <?php if (!isset($_SESSION['user_id'])): ?>
-                    <li><a href="login.php" class="block text-sm px-2 py-4 hover:bg-blue-600 hover:text-white transition duration-300">Login</a></li>
-                    <li><a href="register.php" class="block text-sm px-2 py-4 hover:bg-blue-600 hover:text-white transition duration-300">Register</a></li>
-                <?php else: ?>
-                    <li><a href="dashboard.php" class="block text-sm px-2 py-4 hover:bg-blue-600 hover:text-white transition duration-300">Dashboard</a></li>
-                    <li><a href="logout.php" class="block text-sm px-2 py-4 hover:bg-blue-600 hover:text-white transition duration-300">Logout</a></li>
-                <?php endif; ?>
-            </ul>
+
+        <!-- Mobile menu -->
+        <div class="sm:hidden hidden" id="mobile-menu">
+            <div class="pt-2 pb-3 space-y-1">
+                <a href="index.php" class="block pl-3 pr-4 py-2 border-l-4 text-base font-medium hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700">Home</a>
+                <a href="books.php" class="block pl-3 pr-4 py-2 border-l-4 text-base font-medium hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700">Books</a>
+                <a href="categories.php" class="block pl-3 pr-4 py-2 border-l-4 text-base font-medium hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700">Categories</a>
+                <a href="about.php" class="block pl-3 pr-4 py-2 border-l-4 text-base font-medium hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700">About</a>
+            </div>
         </div>
     </nav>
+
+    <script>
+        // Toggle mobile menu
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+
+        // Toggle user dropdown
+        const userMenuButton = document.getElementById('user-menu-button');
+        const userDropdown = document.getElementById('user-dropdown');
+        
+        if (userMenuButton && userDropdown) {
+            userMenuButton.addEventListener('click', function() {
+                userDropdown.classList.toggle('hidden');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!userMenuButton.contains(event.target) && !userDropdown.contains(event.target)) {
+                    userDropdown.classList.add('hidden');
+                }
+            });
+        }
+    </script>
 </body>
 </html> 
