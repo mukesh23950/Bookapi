@@ -69,18 +69,15 @@
                     <!-- Auth Buttons -->
                     <?php if (!isset($_SESSION['user_id'])): ?>
                         <a href="login.php" 
-                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-600 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            Sign in
-                        </a>
-                        <a href="login.php?tab=register" 
-                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            Register
+                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-md">
+                            <i class="fas fa-sign-in-alt mr-2"></i>
+                            Login / Register
                         </a>
                     <?php else: ?>
                         <!-- User Dropdown -->
                         <div class="relative inline-block text-left">
                             <button type="button" 
-                                    class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" 
+                                    class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" 
                                     id="user-menu-button">
                                 <span class="mr-2"><?php echo $_SESSION['user_name']; ?></span>
                                 <i class="fas fa-chevron-down"></i>
