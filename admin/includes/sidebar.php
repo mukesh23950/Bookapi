@@ -18,10 +18,33 @@
             </a>
             
             <div class="px-4 py-2 mt-4 text-xs font-semibold text-gray-600 uppercase">Books Management</div>
-            <a href="books.php" class="flex items-center px-6 py-3 text-gray-700 <?php echo $page_name == 'books' ? 'bg-gray-100 border-l-4 border-blue-600' : 'hover:bg-gray-100 hover:border-l-4 hover:border-blue-600'; ?>">
-                <i class="fas fa-book w-5"></i>
-                <span class="mx-3">Books</span>
-            </a>
+            <div class="space-y-1">
+                <!-- Books Parent Menu -->
+                <div x-data="{ open: <?php echo in_array($page_name, ['books', 'view-books']) ? 'true' : 'false' ?> }">
+                    <button @click="open = !open" 
+                            class="flex items-center justify-between w-full px-6 py-3 text-gray-700 hover:bg-gray-100 hover:border-l-4 hover:border-blue-600">
+                        <div class="flex items-center">
+                            <i class="fas fa-book w-5"></i>
+                            <span class="mx-3">Books</span>
+                        </div>
+                        <i class="fas fa-chevron-down text-xs transition-transform" :class="{ 'transform rotate-180': open }"></i>
+                    </button>
+                    
+                    <!-- Submenu -->
+                    <div x-show="open" class="pl-4">
+                        <a href="books.php" 
+                           class="flex items-center px-6 py-2 text-sm text-gray-700 <?php echo $page_name == 'books' ? 'bg-gray-100 border-l-4 border-blue-600' : 'hover:bg-gray-100 hover:border-l-4 hover:border-blue-600'; ?>">
+                            <i class="fas fa-plus-circle w-5"></i>
+                            <span class="mx-3">Add Books</span>
+                        </a>
+                        <a href="view-books.php" 
+                           class="flex items-center px-6 py-2 text-sm text-gray-700 <?php echo $page_name == 'view-books' ? 'bg-gray-100 border-l-4 border-blue-600' : 'hover:bg-gray-100 hover:border-l-4 hover:border-blue-600'; ?>">
+                            <i class="fas fa-list w-5"></i>
+                            <span class="mx-3">View Books</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
             <a href="categories.php" class="flex items-center px-6 py-3 text-gray-700 <?php echo $page_name == 'categories' ? 'bg-gray-100 border-l-4 border-blue-600' : 'hover:bg-gray-100 hover:border-l-4 hover:border-blue-600'; ?>">
                 <i class="fas fa-tags w-5"></i>
                 <span class="mx-3">Categories</span>

@@ -26,7 +26,10 @@ require_once __DIR__ . '/functions.php';
 </head>
 <body class="font-[Poppins] bg-gray-50">
 
-<?php if (!isset($page_name) || $page_name !== 'books'): ?>
+<?php 
+// Show navbar only for non-admin pages
+if (!str_contains($_SERVER['REQUEST_URI'], '/admin/')): 
+?>
     <!-- Navigation -->
     <nav class="bg-white shadow-sm">
         <div class="max-w-7xl mx-auto px-4">
