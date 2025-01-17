@@ -64,9 +64,6 @@ include '../includes/header.php';
                             </div>
                             <select id="language" class="w-full bg-gray-50 border-0 rounded-lg py-3 px-4">
                                 <option value="all">All Languages</option>
-                                <option value="eng">English</option>
-                                <option value="hin">Hindi</option>
-                                <option value="spa">Spanish</option>
                             </select>
                         </div>
 
@@ -77,10 +74,6 @@ include '../includes/header.php';
                             </div>
                             <select id="category" class="w-full bg-gray-50 border-0 rounded-lg py-3 px-4">
                                 <option value="all">All Categories</option>
-                                <option value="fiction">Fiction</option>
-                                <option value="non-fiction">Non-Fiction</option>
-                                <option value="science">Science</option>
-                                <option value="technology">Technology</option>
                             </select>
                         </div>
                     </div>
@@ -89,8 +82,8 @@ include '../includes/header.php';
                         <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                         <input type="text" id="searchQuery" 
                                class="w-full bg-gray-50 border-0 rounded-lg pl-12 pr-32 py-3"
-                               placeholder="Enter book title, author or ISBN">
-                        <button id="searchButton"
+                               placeholder="yoga">
+                        <button onclick="searchBooks()" 
                                 class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 text-white px-8 py-2 rounded-lg hover:bg-blue-700">
                             Search Books
                         </button>
@@ -102,10 +95,10 @@ include '../includes/header.php';
             <div class="bg-white rounded-3xl shadow-sm p-6">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-xl font-medium text-gray-800">Search Results</h3>
-                    <button id="fetchSelectedButton"
+                    <button onclick="saveSelectedBooks()" 
                             class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                        <i class="fas fa-download mr-2"></i>
-                        Fetch Selected Books
+                        <i class="fas fa-save mr-2"></i>
+                        Save Selected Books
                     </button>
                 </div>
                 
@@ -116,70 +109,52 @@ include '../includes/header.php';
                                 <th class="px-6 py-3 text-left">
                                     <input type="checkbox" id="selectAll" class="w-4 h-4 rounded border-gray-300">
                                 </th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase">COVER</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase">TITLE</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase">AUTHOR</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase">LANGUAGE</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase">Cover</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase">Title</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase">Author</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase">Description</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase">Language</th>
                                 <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase">ISBN</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase">PUBLISHED</th>
-                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase">ACTIONS</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase">Published</th>
+                                <th class="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="searchResults" class="divide-y divide-gray-100">
-                            <!-- Results will be populated by JavaScript -->
+                            <!-- Example row structure for JavaScript -->
+                            <!--
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4">
+                                    <input type="checkbox" class="book-select w-4 h-4 rounded border-gray-300">
+                                </td>
+                                <td class="px-6 py-4">
+                                    <img src="cover_url" class="w-16 h-20 object-cover rounded-lg shadow-sm">
+                                </td>
+                                <td class="px-6 py-4 text-gray-900">Book Title</td>
+                                <td class="px-6 py-4 text-gray-600">Author Name</td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        English
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-gray-600">ISBN Number</td>
+                                <td class="px-6 py-4 text-gray-600">Year</td>
+                                <td class="px-6 py-4">
+                                    <button class="text-blue-600 hover:text-blue-800 font-medium">
+                                        View
+                                    </button>
+                                </td>
+                            </tr>
+                            -->
                         </tbody>
                     </table>
-
-                    <!-- Pagination Controls -->
-                    <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
-                        <div class="flex flex-1 justify-between sm:hidden">
-                            <button id="prevPage" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Previous</button>
-                            <button id="nextPage" class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Next</button>
-                        </div>
-                        <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                            <div>
-                                <p class="text-sm text-gray-700">
-                                    Showing <span id="startRecord" class="font-medium">0</span> to <span id="endRecord" class="font-medium">0</span> of <span id="totalRecords" class="font-medium">0</span> results
-                                </p>
-                            </div>
-                            <div class="flex items-center space-x-4">
-                                <select id="itemsPerPage" class="rounded-md border-gray-300 py-1.5 text-sm font-medium text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                                    <option value="10">10 per page</option>
-                                    <option value="25">25 per page</option>
-                                    <option value="50">50 per page</option>
-                                </select>
-                                <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                                    <button id="prevPage" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
-                                        <span class="sr-only">Previous</span>
-                                        <i class="fas fa-chevron-left h-5 w-5"></i>
-                                    </button>
-                                    <div id="pageNumbers" class="flex">
-                                        <!-- Page numbers will be populated by JavaScript -->
-                                    </div>
-                                    <button id="nextPage" class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
-                                        <span class="sr-only">Next</span>
-                                        <i class="fas fa-chevron-right h-5 w-5"></i>
-                                    </button>
-                                </nav>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Pagination will be inserted here -->
+                    <div id="pagination" class="flex justify-center items-center gap-2 mt-6"></div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Loading Modal Template -->
-<div id="loadingModalTemplate" class="hidden">
-    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-        <div class="bg-white p-6 rounded-lg shadow-xl">
-            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500 mx-auto"></div>
-            <p class="mt-4 text-gray-600">Loading...</p>
-        </div>
-    </div>
-</div>
-
 <script src="js/books.js"></script>
 
-<?php include '../includes/footer.php'; ?>
+<?php include '../includes/footer.php'; ?> 

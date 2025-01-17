@@ -1,276 +1,261 @@
-// Global variables
 let currentBooks = [];
-let searchCache = new Map();
-let isLoading = false;
 let currentPage = 1;
-let itemsPerPage = 10;
-let totalPages = 0;
-let allBooksData = []; // Store all fetched books
-
-// Default cover image (base64 encoded)
-const defaultCoverImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAEYCAMAAADCuiwhAAAAP1BMVEX///+tra3CwsKpqan7+/vPz8/4+PjLy8v19fW2trby8vLl5eXIyMjd3d3i4uLr6+u8vLzU1NS5ubmxsbGlpaXyg4TBAAACxUlEQVR4nO3c7XKCMBCGYUwCBAhfAd7/rRattZ1xZxeH7jlxn1+O8w7JGiAgPB4AAAAAAAAAAAAAAAAAAAAAAAAAAADwO8s0X4p4vU7XorhM0+rdiyndHRNWJ2U+LH0MIaQY+2XOVSJPHu7lNnVZZc+qrrsuvtxCzMdyTKlrlJhzp0gZqfsuVGXqFu6S8nJKHcNd0lBNqVO4S6omqeQu7TRVK6kc7hLbSYW7zDDNUqEu7TqpUJeVTirU5TWDVKjLW3upUJfXDlKhLq/rpUJdXi8V6tKOUqEubRykQl3eIBXq8qJUqMtrpEJdXlRSoS4vSoW6vCgV6vKiVKjLi1KhLi9Khbq8KBXq8qJUqMuLUqEuL0qFurwoFeryolSoy4tSoS4vSoW6vCgV6vKiVKjLi1KhLi9Khbq8KBXq8qJUqMuLUqEuL0qFurwoFeryolSoy4tSoS4vSoW6vCgV6vKiVKjLi1KhLi9Khbq8KBXq8qJUqMuLUqEuL0qFurwoFeryolSoy4tSoS4vSoW6vCgV6vKiVKjLi1KhLi9Khbq8KBXq8qJUqMuLUqEuL0qFurwoFeryolSoy4tSoS4vSoW6vCgV6vKiVKjLi1KhLi9Khbq8KBXq8qJUqMuLUqEuL0qFurwoFeryolSoy4tSoS4vSoW6vCgV6vKiVKjLi1KhLi9Khbq8KBXq8qJUqMuLUqEuL0qFurwoFeryolSoy4tSoS4vSoW6vCgV6vKiVKjLi1KhLi9Khbq8KBXq8qJUqMuLUqEuL0qFurwoFeryolSoy4tSoS4vSoW6vCgV6vKiVKjLi1KhLi9Khbq8KBXq8qJUqMuLUqEuL0qFurwoFeryolSoy4tSoS4vSoW6vCgV6vKiVKjLi1KhLi9Khbq8KBXq8qJUqMuLUqEuL0qFurwoFeryolSoy4tSoS4vSoW6vCgV6vKiVKjLi1Kh/nf9A/sYQfWy5H+EAAAAAElFTkSuQmCC';
+const resultsPerPage = 20;
+let totalResults = 0;
+let lastSearchQuery = '';
+let lastSearchType = '';
 
 // Show loading modal
 function showLoadingModal(message = 'Loading...') {
-    if (isLoading) return;
-    isLoading = true;
-    const template = document.getElementById('loadingModalTemplate');
-    if (!template) return;
-
-    const modal = template.cloneNode(true);
-    modal.id = 'loadingModal';
-    modal.classList.remove('hidden');
+    // Remove existing modal if any
+    closeLoadingModal();
     
-    const messageElement = modal.querySelector('p');
-    if (messageElement) {
-        messageElement.textContent = message;
-    }
+    const modalHtml = `
+        <div id="loadingModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-6 flex items-center gap-4">
+                <div class="animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
+                <p class="text-gray-700">${message}</p>
+            </div>
+        </div>
+    `;
     
-    document.body.appendChild(modal);
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
 }
 
-// Close loading modal
 function closeLoadingModal() {
-    isLoading = false;
-    const modal = document.getElementById('loadingModal');
-    if (modal) {
-        modal.remove();
+    const loadingModal = document.getElementById('loadingModal');
+    if (loadingModal) {
+        loadingModal.remove();
     }
 }
 
-// Get paginated data
-function getPaginatedData(data) {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return data.slice(startIndex, endIndex);
-}
-
-// Get book cover URL
-function getBookCoverUrl(book) {
-    // If book has local cover path, use it
-    if (book.local_cover_path) {
-        return book.local_cover_path;
-    }
+async function searchBooks(page = 1) {
+    currentPage = page;
+    const searchType = document.getElementById('searchType').value;
+    const query = document.getElementById('searchQuery').value.trim();
     
-    // Otherwise use OpenLibrary cover or default
-    return book.cover_i 
-        ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg`
-        : defaultCoverImage;
-}
-
-// Display search results with pagination
-function displaySearchResults(books = [], isNewSearch = false) {
-    const tbody = document.getElementById('searchResults');
-    if (!tbody) return;
-
-    // If it's a new search, update the full dataset
-    if (isNewSearch) {
-        allBooksData = books;
-        currentPage = 1; // Reset to first page on new search
-    }
-    
-    // Store the full results
-    currentBooks = allBooksData;
-    
-    // Calculate total pages
-    totalPages = Math.ceil(currentBooks.length / itemsPerPage);
-    
-    // Get paginated data
-    const paginatedBooks = getPaginatedData(currentBooks);
-    
-    // Create fragment for better performance
-    const fragment = document.createDocumentFragment();
-    
-    if (!currentBooks || currentBooks.length === 0) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = '<td colspan="8" class="text-center py-4">No books found</td>';
-        fragment.appendChild(tr);
-    } else {
-        paginatedBooks.forEach((book, index) => {
-            const tr = document.createElement('tr');
-            tr.className = 'hover:bg-gray-50';
-            
-            const coverUrl = getBookCoverUrl(book);
-                
-            tr.innerHTML = `
-                <td class="px-6 py-4">
-                    <input type="checkbox" class="book-select w-4 h-4 rounded border-gray-300" 
-                           data-index="${(currentPage - 1) * itemsPerPage + index}">
-                </td>
-                <td class="px-6 py-4">
-                    <img src="${coverUrl}" 
-                         class="w-16 h-20 object-cover rounded-lg shadow-sm"
-                         onerror="this.src='${defaultCoverImage}'">
-                </td>
-                <td class="px-6 py-4 text-gray-900 font-medium">${book.title || 'Unknown Title'}</td>
-                <td class="px-6 py-4 text-gray-600">${book.author_name?.[0] || 'Unknown'}</td>
-                <td class="px-6 py-4">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        book.language === 'eng' ? 'bg-blue-100 text-blue-800' : 
-                        'bg-gray-100 text-gray-800'
-                    }">
-                        ${book.language || 'Unknown'}
-                    </span>
-                </td>
-                <td class="px-6 py-4 text-gray-600">${book.isbn?.[0] || 'N/A'}</td>
-                <td class="px-6 py-4 text-gray-600">${book.first_publish_year || 'N/A'}</td>
-                <td class="px-6 py-4">
-                    <button class="text-blue-600 hover:text-blue-800 font-medium" 
-                            onclick="viewBookDetails(${(currentPage - 1) * itemsPerPage + index})">
-                        <i class="fas fa-eye mr-1"></i> View
-                    </button>
-                </td>
-            `;
-            
-            fragment.appendChild(tr);
-        });
-    }
-
-    // Clear existing content and append new results
-    tbody.innerHTML = '';
-    tbody.appendChild(fragment);
-
-    // Update pagination info
-    updatePaginationInfo();
-}
-
-// Update pagination info
-function updatePaginationInfo() {
-    const startRecord = document.getElementById('startRecord');
-    const endRecord = document.getElementById('endRecord');
-    const totalRecords = document.getElementById('totalRecords');
-    
-    if (startRecord && endRecord && totalRecords) {
-        const total = currentBooks.length;
-        const start = total === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
-        const end = Math.min(currentPage * itemsPerPage, total);
-        
-        startRecord.textContent = start;
-        endRecord.textContent = end;
-        totalRecords.textContent = total;
-    }
-
-    // Update pagination buttons
-    const prevButton = document.getElementById('prevPage');
-    const nextButton = document.getElementById('nextPage');
-    
-    if (prevButton) {
-        prevButton.disabled = currentPage === 1;
-    }
-    if (nextButton) {
-        nextButton.disabled = currentPage >= totalPages;
-    }
-
-    // Update page numbers
-    const pageNumbers = document.getElementById('pageNumbers');
-    if (pageNumbers) {
-        pageNumbers.innerHTML = '';
-        
-        // Show max 5 page numbers
-        let startPage = Math.max(1, currentPage - 2);
-        let endPage = Math.min(totalPages, startPage + 4);
-        
-        if (startPage > 1) {
-            addPageButton(1, pageNumbers);
-            if (startPage > 2) {
-                addEllipsis(pageNumbers);
-            }
-        }
-        
-        for (let i = startPage; i <= endPage; i++) {
-            addPageButton(i, pageNumbers);
-        }
-        
-        if (endPage < totalPages) {
-            if (endPage < totalPages - 1) {
-                addEllipsis(pageNumbers);
-            }
-            addPageButton(totalPages, pageNumbers);
-        }
-    }
-}
-
-// Add page button
-function addPageButton(pageNum, container) {
-    const button = document.createElement('button');
-    button.textContent = pageNum;
-    button.className = `relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
-        pageNum === currentPage
-            ? 'z-10 bg-blue-600 text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'
-            : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0'
-    }`;
-    button.onclick = () => goToPage(pageNum);
-    container.appendChild(button);
-}
-
-// Add ellipsis
-function addEllipsis(container) {
-    const span = document.createElement('span');
-    span.className = 'relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300 focus:outline-offset-0';
-    span.textContent = '...';
-    container.appendChild(span);
-}
-
-// Go to page
-function goToPage(page) {
-    if (page >= 1 && page <= totalPages) {
-        currentPage = page;
-        displaySearchResults(currentBooks); // Reuse existing data
-    }
-}
-
-// Debounce function
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
-// Cache key generator
-function generateCacheKey(searchType, searchQuery, language, category) {
-    return `${searchType}-${searchQuery}-${language}-${category}`;
-}
-
-// Search books function
-const searchBooks = async function() {
-    const searchType = document.getElementById('searchType')?.value || 'title';
-    const searchQuery = document.getElementById('searchQuery')?.value?.trim();
-    const language = document.getElementById('language')?.value || 'all';
-    
-    if (!searchQuery) {
-        displaySearchResults([], true);
+    if (!query) {
+        alert('Please enter a search term');
         return;
     }
 
+    // Save last search parameters
+    lastSearchQuery = query;
+    lastSearchType = searchType;
+
     try {
-        showLoadingModal('Searching books...');
+        showLoadingModal('Searching books...'); // Use new loading modal
         
-        let apiUrl = `https://openlibrary.org/search.json?${searchType}=${encodeURIComponent(searchQuery)}`;
-        if (language !== 'all') {
-            apiUrl += `&language=${language}`;
-        }
+        const response = await fetch(
+            `https://openlibrary.org/search.json?${searchType}=${encodeURIComponent(query)}&page=${page}&limit=${resultsPerPage}`
+        );
         
-        const response = await fetch(apiUrl);
         const data = await response.json();
+        totalResults = data.numFound;
+        currentBooks = data.docs;
         
-        displaySearchResults(data.docs || [], true); // Pass true for new search
+        displaySearchResults(currentBooks);
+        displayPagination();
+        
+        closeLoadingModal(); // Close loading modal
     } catch (error) {
-        console.error('Search error:', error);
-        displaySearchResults([], true);
+        closeLoadingModal(); // Make sure to close modal on error
+        console.error('Error:', error);
         alert('Error searching books: ' + error.message);
-    } finally {
-        closeLoadingModal();
     }
 }
 
-// Fetch selected books with loading state
-async function fetchSelectedBooks() {
+function displaySearchResults(books) {
+    const resultsContainer = document.getElementById('searchResults');
+    resultsContainer.innerHTML = books.map((book, index) => `
+        <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4">
+                <input type="checkbox" class="book-select w-4 h-4 rounded border-gray-300" data-index="${index}">
+            </td>
+            <td class="px-6 py-4">
+                <img src="${book.cover_i ? 
+                    `https://covers.openlibrary.org/b/id/${book.cover_i}-S.jpg` : 
+                    '../assets/images/no-cover.png'}" 
+                    class="w-16 h-20 object-cover rounded-lg shadow-sm"
+                    alt="Book cover">
+            </td>
+            <td class="px-6 py-4 text-gray-900 font-medium">${book.title}</td>
+            <td class="px-6 py-4 text-gray-600">${book.author_name?.[0] || 'Unknown'}</td>
+            <td class="px-6 py-4 text-gray-600">
+                <div class="max-w-xs">
+                    <p class="text-sm" title="${book.description || ''}">${book.description ? 
+                        (book.description.length > 100 ? book.description.substring(0, 100) + '...' : book.description) : 
+                        'No description available'}
+                    </p>
+                </div>
+            </td>
+            <td class="px-6 py-4">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    book.language === 'eng' ? 'bg-blue-100 text-blue-800' : 
+                    'bg-gray-100 text-gray-800'
+                }">
+                    ${book.language || 'Unknown'}
+                </span>
+            </td>
+            <td class="px-6 py-4 text-gray-600">${book.isbn?.[0] || 'N/A'}</td>
+            <td class="px-6 py-4 text-gray-600">${book.first_publish_year || 'N/A'}</td>
+            <td class="px-6 py-4">
+                <button onclick="viewBookDetails(${index})" 
+                        class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
+                    <i class="fas fa-eye mr-1"></i> View
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function showBookModal(modalHtml) {
+    closeBookModal(); // Close any existing modal first
+    const modalContainer = document.createElement('div');
+    modalContainer.id = 'bookModal';
+    modalContainer.innerHTML = modalHtml;
+    document.body.appendChild(modalContainer);
+}
+
+function closeBookModal() {
+    const modal = document.getElementById('bookModal');
+    if (modal) {
+        modal.remove();
+    }
+    // Remove event listener
+    document.removeEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeBookModal();
+    });
+}
+
+function viewBookDetails(index) {
+    const book = currentBooks[index];
+    
+    // Get description from different possible sources
+    let description = '';
+    if (book.description) {
+        description = typeof book.description === 'object' ? 
+                     book.description.value || '' : book.description;
+    } else if (book.first_sentence) {
+        description = book.first_sentence;
+    }
+
+    // Create modal HTML
+    const modalHtml = `
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg max-w-2xl w-full mx-4 overflow-hidden">
+                <div class="flex justify-between items-center px-6 py-4 border-b">
+                    <h3 class="text-xl font-bold text-gray-900">Book Details</h3>
+                    <button onclick="closeBookModal()" class="text-gray-400 hover:text-gray-500">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="p-6">
+                    <div class="flex gap-6">
+                        <div class="w-1/3">
+                            <img src="${book.cover_i ? 
+                                `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg` : 
+                                '../assets/images/no-cover.png'}" 
+                                class="w-full rounded-lg shadow-lg"
+                                alt="Book cover">
+                        </div>
+                        
+                        <div class="w-2/3">
+                            <h4 class="text-2xl font-bold text-gray-900 mb-2">${book.title}</h4>
+                            
+                            <div class="space-y-3 text-gray-600">
+                                <p><span class="font-medium">Author:</span> ${book.author_name?.[0] || 'Unknown'}</p>
+                                <p><span class="font-medium">ISBN:</span> ${book.isbn?.[0] || 'N/A'}</p>
+                                <p><span class="font-medium">Published:</span> ${book.first_publish_year || 'N/A'}</p>
+                                <p><span class="font-medium">Language:</span> ${book.language?.[0] || 'Unknown'}</p>
+                                <p><span class="font-medium">Publisher:</span> ${book.publisher?.[0] || 'Unknown'}</p>
+                                
+                                <div class="mt-4">
+                                    <p class="font-medium mb-2">Description:</p>
+                                    <p class="text-gray-600 bg-gray-50 p-4 rounded-lg">
+                                        ${description || 'No description available'}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="px-6 py-4 bg-gray-50 border-t flex justify-end gap-2">
+                    <button onclick="saveBookFromModal(${index})" 
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-save mr-2"></i>Save Book
+                    </button>
+                    <button onclick="closeBookModal()" 
+                            class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    showBookModal(modalHtml);
+
+    // Add escape key listener
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeBookModal();
+        }
+    });
+}
+
+// Function to save book from modal
+async function saveBookFromModal(index) {
+    try {
+        showLoadingModal('Saving book...');
+        
+        const book = currentBooks[index];
+        const bookData = {
+            books: [{
+                title: book.title,
+                author: book.author_name?.[0] || '',
+                isbn: book.isbn?.[0] || '',
+                published_year: book.first_publish_year || '',
+                cover_id: book.cover_i?.toString() || '',
+                local_cover_path: book.cover_i ? 
+                    `/assets/images/covers/${book.cover_i}.jpg` : '',
+                description: book.description || '',
+                publisher: book.publisher?.[0] || '',
+                page_count: book.number_of_pages || null,
+                categories: book.subject?.[0] || '',
+                rating: null,
+                language: book.language?.[0] || '',
+                status: 'active'
+            }]
+        };
+
+        const response = await fetch('../api/books/save.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(bookData)
+        });
+
+        const result = await response.json();
+        
+        closeLoadingModal();
+        
+        if (result.success) {
+            closeBookModal();
+            alert('Book saved successfully!');
+        } else {
+            throw new Error(result.message);
+        }
+
+    } catch (error) {
+        closeLoadingModal();
+        console.error('Error:', error);
+        alert('Error saving book: ' + error.message);
+    }
+}
+
+async function saveSelectedBooks() {
     const selected = document.querySelectorAll('.book-select:checked');
     
     if (selected.length === 0) {
@@ -280,248 +265,128 @@ async function fetchSelectedBooks() {
 
     try {
         showLoadingModal('Saving selected books...');
-
+        
         const books = Array.from(selected).map(checkbox => {
             const index = parseInt(checkbox.dataset.index);
             const book = currentBooks[index];
             
-            // Ensure all values are properly sanitized
             return {
-                title: book.title || 'Unknown Title',
-                author: book.author_name ? book.author_name[0] : 'Unknown Author',
-                isbn: book.isbn && book.isbn[0] ? book.isbn[0] : 'N/A',
-                published_year: book.first_publish_year || null,
-                cover_id: book.cover_i ? book.cover_i.toString() : '',
-                language: book.language && book.language[0] ? book.language[0] : 'eng'
+                title: book.title,
+                author: book.author_name?.[0] || '',
+                isbn: book.isbn?.[0] || '',
+                published_year: book.first_publish_year || '',
+                cover_id: book.cover_i?.toString() || '',
+                local_cover_path: book.cover_i ? 
+                    `/assets/images/covers/${book.cover_i}.jpg` : '',
+                description: book.description || '',
+                publisher: book.publisher?.[0] || '',
+                page_count: book.number_of_pages || null,
+                categories: book.subject?.[0] || '',
+                rating: null,
+                language: book.language?.[0] || '',
+                status: 'active'
             };
         });
 
         const response = await fetch('../api/books/save.php', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(books)  // Send books array directly
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ books: books })
         });
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const result = await response.text();  // Get response as text first
-        let data;
+        const result = await response.json();
         
-        try {
-            data = JSON.parse(result);  // Try to parse as JSON
-        } catch (e) {
-            console.error('Server response:', result);
-            throw new Error('Invalid JSON response from server');
-        }
-
-        if (data.success) {
-            alert('Books saved successfully!');
-            // Clear selections
-            selected.forEach(cb => cb.checked = false);
-            const selectAll = document.getElementById('selectAll');
-            if (selectAll) {
-                selectAll.checked = false;
-            }
-        } else {
-            throw new Error(data.message || 'Unknown error');
-        }
-    } catch (error) {
-        console.error('Error saving books:', error);
-        alert('Error saving books: ' + error.message);
-    } finally {
         closeLoadingModal();
-    }
-}
-
-// View book details with loading state
-function viewBookDetails(index) {
-    const book = currentBooks[index];
-    if (!book) return;
-    
-    const modalHtml = `
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50" id="bookDetailModal">
-            <div class="bg-white rounded-2xl shadow-xl max-w-4xl w-full mx-4 opacity-0 transform translate-y-4 transition-all duration-300">
-                <div class="flex justify-between items-center p-6 border-b">
-                    <h3 class="text-2xl font-semibold text-gray-800">Book Details</h3>
-                    <button class="text-gray-500 hover:text-gray-700" id="closeDetailModal">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
-                </div>
-                
-                <div class="p-6">
-                    <div class="flex gap-8">
-                        <div class="w-1/3">
-                            <img src="https://covers.openlibrary.org/b/id/${book.cover_i}-L.jpg" 
-                                 class="w-full rounded-lg shadow-lg object-cover"
-                                 onerror="this.src='../assets/images/no-cover.png'">
-                        </div>
-                        
-                        <div class="w-2/3 space-y-4">
-                            <div>
-                                <h4 class="text-sm font-medium text-gray-500">Title</h4>
-                                <p class="text-lg font-medium text-gray-900">${book.title}</p>
-                            </div>
-                            
-                            <div>
-                                <h4 class="text-sm font-medium text-gray-500">Author</h4>
-                                <p class="text-gray-800">${book.author_name?.[0] || 'Unknown'}</p>
-                            </div>
-                            
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <h4 class="text-sm font-medium text-gray-500">Language</h4>
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                        ${book.language || 'Unknown'}
-                                    </span>
-                                </div>
-                                
-                                <div>
-                                    <h4 class="text-sm font-medium text-gray-500">Published Year</h4>
-                                    <p class="text-gray-800">${book.first_publish_year || 'N/A'}</p>
-                                </div>
-                                
-                                <div>
-                                    <h4 class="text-sm font-medium text-gray-500">ISBN</h4>
-                                    <p class="text-gray-800">${book.isbn?.[0] || 'N/A'}</p>
-                                </div>
-                                
-                                <div>
-                                    <h4 class="text-sm font-medium text-gray-500">Publisher</h4>
-                                    <p class="text-gray-800">${book.publisher?.[0] || 'N/A'}</p>
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <h4 class="text-sm font-medium text-gray-500">Description</h4>
-                                <p class="text-gray-800 mt-1">${book.description || 'No description available'}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="flex justify-end gap-4 p-6 border-t bg-gray-50 rounded-b-2xl">
-                    <button class="px-4 py-2 text-gray-700 hover:text-gray-900" id="cancelDetailModal">
-                        Close
-                    </button>
-                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" id="addToLibraryButton">
-                        Add to Library
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
-    
-    // Add event listeners for modal buttons
-    const modal = document.getElementById('bookDetailModal');
-    if (modal) {
-        // Trigger animation after a frame
-        requestAnimationFrame(() => {
-            const dialog = modal.querySelector('.transform');
-            if (dialog) {
-                dialog.classList.remove('opacity-0', 'translate-y-4');
-            }
-        });
         
-        const closeButtons = modal.querySelectorAll('#closeDetailModal, #cancelDetailModal');
-        closeButtons.forEach(button => {
-            button.addEventListener('click', closeBookDetails);
-        });
-        
-        const addButton = modal.querySelector('#addToLibraryButton');
-        if (addButton) {
-            addButton.addEventListener('click', () => {
-                closeBookDetails();
-                fetchSelectedBooks([index]);
-            });
-        }
-    }
-}
-
-// Close book details modal with animation
-function closeBookDetails() {
-    const modal = document.getElementById('bookDetailModal');
-    if (modal) {
-        const dialog = modal.querySelector('.transform');
-        if (dialog) {
-            dialog.classList.add('opacity-0', 'translate-y-4');
-            setTimeout(() => {
-                modal.remove();
-            }, 300);
+        if (result.success) {
+            // Clear selections after successful save
+            document.querySelectorAll('.book-select').forEach(cb => cb.checked = false);
+            document.getElementById('selectAll').checked = false;
+            
+            alert(`${result.saved.length} books saved successfully!` + 
+                  (result.duplicates.length > 0 ? `\n${result.duplicates.length} duplicates skipped.` : ''));
         } else {
-            modal.remove();
+            throw new Error(result.message);
         }
+
+    } catch (error) {
+        closeLoadingModal();
+        console.error('Error:', error);
+        alert('Error saving books: ' + error.message);
     }
 }
 
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize search button
-    const searchButton = document.getElementById('searchButton');
-    if (searchButton) {
-        searchButton.addEventListener('click', searchBooks);
-    }
-    
-    // Initialize fetch selected button
-    const fetchButton = document.getElementById('fetchSelectedButton');
-    if (fetchButton) {
-        fetchButton.addEventListener('click', fetchSelectedBooks);
-    }
-    
-    // Initialize select all functionality
-    const selectAllCheckbox = document.getElementById('selectAll');
-    if (selectAllCheckbox) {
-        selectAllCheckbox.addEventListener('change', (e) => {
-            document.querySelectorAll('.book-select').forEach(cb => {
-                cb.checked = e.target.checked;
-            });
-        });
-    }
-    
-    // Initialize search on enter key only
-    const searchInput = document.getElementById('searchQuery');
-    if (searchInput) {
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                searchBooks();
-            }
-        });
-    }
-    
-    // Initialize pagination buttons
-    const prevPageButton = document.getElementById('prevPage');
-    if (prevPageButton) {
-        prevPageButton.addEventListener('click', () => {
-            if (currentPage > 1) {
-                currentPage--;
-                displaySearchResults(currentBooks);
-            }
-        });
-    }
-    
-    const nextPageButton = document.getElementById('nextPage');
-    if (nextPageButton) {
-        nextPageButton.addEventListener('click', () => {
-            if (currentPage < totalPages) {
-                currentPage++;
-                displaySearchResults(currentBooks);
-            }
-        });
-    }
-    
-    // Initialize items per page selector
-    const itemsPerPageSelect = document.getElementById('itemsPerPage');
-    if (itemsPerPageSelect) {
-        itemsPerPageSelect.value = itemsPerPage; // Set initial value
-        itemsPerPageSelect.addEventListener('change', () => {
-            itemsPerPage = parseInt(itemsPerPageSelect.value);
-            currentPage = 1; // Reset to first page when changing items per page
-            displaySearchResults(currentBooks);
+// Initialize select all functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAll = document.getElementById('selectAll');
+    if (selectAll) {
+        selectAll.addEventListener('change', (e) => {
+            document.querySelectorAll('.book-select').forEach(cb => cb.checked = e.target.checked);
         });
     }
 });
+
+function displayPagination() {
+    const totalPages = Math.ceil(totalResults / resultsPerPage);
+    const paginationContainer = document.getElementById('pagination');
+    
+    if (!paginationContainer) {
+        // Create pagination container if it doesn't exist
+        const container = document.createElement('div');
+        container.id = 'pagination';
+        container.className = 'flex justify-center items-center gap-2 mt-6';
+        document.querySelector('.overflow-x-auto').appendChild(container);
+    }
+
+    let paginationHTML = `
+        <div class="flex items-center gap-4">
+            <span class="text-sm text-gray-600">
+                Showing ${((currentPage - 1) * resultsPerPage) + 1} - 
+                ${Math.min(currentPage * resultsPerPage, totalResults)} 
+                of ${totalResults} results
+            </span>
+            <div class="flex items-center gap-2">
+    `;
+
+    // Previous button
+    paginationHTML += `
+        <button onclick="searchBooks(${currentPage - 1})" 
+                class="px-3 py-1 rounded-lg border ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'hover:bg-gray-50'}"
+                ${currentPage === 1 ? 'disabled' : ''}>
+            <i class="fas fa-chevron-left"></i>
+        </button>
+    `;
+
+    // Page numbers
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, startPage + 4);
+    
+    if (endPage - startPage < 4) {
+        startPage = Math.max(1, endPage - 4);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+        paginationHTML += `
+            <button onclick="searchBooks(${i})" 
+                    class="px-3 py-1 rounded-lg border ${i === currentPage ? 'bg-blue-600 text-white' : 'hover:bg-gray-50'}">
+                ${i}
+            </button>
+        `;
+    }
+
+    // Next button
+    paginationHTML += `
+        <button onclick="searchBooks(${currentPage + 1})" 
+                class="px-3 py-1 rounded-lg border ${currentPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'hover:bg-gray-50'}"
+                ${currentPage === totalPages ? 'disabled' : ''}>
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    `;
+
+    paginationHTML += `
+            </div>
+        </div>
+    `;
+
+    paginationContainer.innerHTML = paginationHTML;
+}
