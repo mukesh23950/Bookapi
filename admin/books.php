@@ -39,18 +39,22 @@ include '../includes/header.php';
         <!-- Page Content -->
         <div class="p-8">
             <!-- Search Section -->
-            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-3xl p-8 mb-8">
-                <h2 class="text-3xl font-bold text-white mb-2">Search Books</h2>
-                <p class="text-blue-100 mb-8">Search for books by title, author, or ISBN</p>
+            <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-6 mb-6">
+                <div class="flex flex-col gap-2 mb-4">
+                    <h2 class="text-2xl font-bold text-white">Search Books</h2>
+                    <p class="text-blue-100/80 text-sm">Discover millions of books in our library</p>
+                </div>
 
-                <div class="bg-white rounded-3xl p-8">
-                    <div class="flex items-center gap-8 mb-6">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-2 mb-1">
-                                <i class="fas fa-search text-blue-600"></i>
-                                <span class="text-sm text-gray-600">Search Type</span>
+                <div class="bg-white/10 backdrop-blur-md rounded-xl p-5">
+                    <div class="grid grid-cols-3 gap-4 mb-4">
+                        <div class="group">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-7 h-7 flex items-center justify-center rounded-lg bg-white/10">
+                                    <i class="fas fa-search text-white text-sm"></i>
+                                </div>
+                                <span class="text-sm font-medium text-white">Search Type</span>
                             </div>
-                            <select id="searchType" class="w-full bg-gray-50 border-0 rounded-lg py-3 px-4">
+                            <select id="searchType" class="w-full bg-gray-50 border border-gray-200 text-gray-700 rounded-lg py-2.5 px-3 text-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all">
                                 <option value="q">Global Search</option>
                                 <option value="title">Title</option>
                                 <option value="author">Author</option>
@@ -58,12 +62,14 @@ include '../includes/header.php';
                             </select>
                         </div>
 
-                        <div class="flex-1">
-                            <div class="flex items-center gap-2 mb-1">
-                                <i class="fas fa-globe text-blue-600"></i>
-                                <span class="text-sm text-gray-600">Language</span>
+                        <div class="group">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-7 h-7 flex items-center justify-center rounded-lg bg-white/10">
+                                    <i class="fas fa-globe text-white text-sm"></i>
+                                </div>
+                                <span class="text-sm font-medium text-white">Language</span>
                             </div>
-                            <select id="language" class="w-full bg-gray-50 border-0 rounded-lg py-3 px-4">
+                            <select id="language" class="w-full bg-gray-50 border border-gray-200 text-gray-700 rounded-lg py-2.5 px-3 text-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all">
                                 <option value="all">All Languages</option>
                                 <option value="eng">English</option>
                                 <option value="hin">Hindi</option>
@@ -73,48 +79,39 @@ include '../includes/header.php';
                                 <option value="rus">Russian</option>
                                 <option value="chi">Chinese</option>
                                 <option value="jpn">Japanese</option>
-                                <option value="ara">Arabic</option>
-                                <option value="kor">Korean</option>
                             </select>
                         </div>
 
-                        <div class="flex-1">
-                            <div class="flex items-center gap-2 mb-1">
-                                <i class="fas fa-tag text-blue-600"></i>
-                                <span class="text-sm text-gray-600">Category</span>
+                        <div class="group">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-7 h-7 flex items-center justify-center rounded-lg bg-white/10">
+                                    <i class="fas fa-tag text-white text-sm"></i>
+                                </div>
+                                <span class="text-sm font-medium text-white">Category</span>
                             </div>
-                            <select id="category" class="w-full bg-gray-50 border-0 rounded-lg py-3 px-4">
+                            <select id="category" class="w-full bg-gray-50 border border-gray-200 text-gray-700 rounded-lg py-2.5 px-3 text-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all">
                                 <option value="all">All Categories</option>
                                 <option value="fiction">Fiction</option>
                                 <option value="nonfiction">Non-Fiction</option>
                                 <option value="science">Science</option>
                                 <option value="history">History</option>
                                 <option value="biography">Biography</option>
-                                <option value="business">Business</option>
                                 <option value="technology">Technology</option>
-                                <option value="computers">Computers</option>
-                                <option value="art">Art & Design</option>
-                                <option value="philosophy">Philosophy</option>
-                                <option value="religion">Religion</option>
-                                <option value="education">Education</option>
-                                <option value="children">Children</option>
-                                <option value="cooking">Cooking</option>
-                                <option value="health">Health & Fitness</option>
-                                <option value="self_help">Self Help</option>
-                                <option value="travel">Travel</option>
                             </select>
                         </div>
                     </div>
 
-                    <div class="relative">
-                        <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                        <input type="text" id="searchQuery" 
-                               class="w-full bg-gray-50 border-0 rounded-lg pl-12 pr-32 py-3"
-                               placeholder="Search for books...">
-                        <button onclick="searchBooks()" 
-                                class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 text-white px-8 py-2 rounded-lg hover:bg-blue-700">
-                            Search Books
-                        </button>
+                    <div class="bg-white rounded-xl p-2 shadow-lg">
+                        <div class="relative">
+                            <input type="text" id="searchQuery" 
+                                   class="w-full bg-gray-50 border-0 rounded-lg pl-11 pr-32 py-3 text-sm"
+                                   placeholder="Search for books...">
+                            <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <button onclick="searchBooks()" 
+                                    class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all text-sm font-medium">
+                                Search Books
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -186,4 +183,3 @@ include '../includes/header.php';
 
 <script src="js/books.js"></script>
 
-<?php include '../includes/footer.php'; ?> 
