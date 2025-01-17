@@ -66,47 +66,59 @@ async function searchBooks(page = 1) {
 }
 
 function displaySearchResults(books) {
+    currentBooks = books; // Store books globally for reference
+    
     const resultsContainer = document.getElementById('searchResults');
-    resultsContainer.innerHTML = books.map((book, index) => `
-        <tr class="hover:bg-gray-50">
-            <td class="px-6 py-4">
-                <input type="checkbox" class="book-select w-4 h-4 rounded border-gray-300" data-index="${index}">
-            </td>
-            <td class="px-6 py-4">
-                <img src="${book.cover_i ? 
-                    `https://covers.openlibrary.org/b/id/${book.cover_i}-S.jpg` : 
-                    '../assets/images/no-cover.png'}" 
-                    class="w-16 h-20 object-cover rounded-lg shadow-sm"
-                    alt="Book cover">
-            </td>
-            <td class="px-6 py-4 text-gray-900 font-medium">${book.title}</td>
-            <td class="px-6 py-4 text-gray-600">${book.author_name?.[0] || 'Unknown'}</td>
-            <td class="px-6 py-4 text-gray-600">
-                <div class="max-w-xs">
-                    <p class="text-sm" title="${book.description || ''}">${book.description ? 
-                        (book.description.length > 100 ? book.description.substring(0, 100) + '...' : book.description) : 
-                        'No description available'}
-                    </p>
-                </div>
-            </td>
-            <td class="px-6 py-4">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    book.language === 'eng' ? 'bg-blue-100 text-blue-800' : 
-                    'bg-gray-100 text-gray-800'
-                }">
-                    ${book.language || 'Unknown'}
-                </span>
-            </td>
-            <td class="px-6 py-4 text-gray-600">${book.isbn?.[0] || 'N/A'}</td>
-            <td class="px-6 py-4 text-gray-600">${book.first_publish_year || 'N/A'}</td>
-            <td class="px-6 py-4">
-                <button onclick="viewBookDetails(${index})" 
-                        class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
-                    <i class="fas fa-eye mr-1"></i> View
-                </button>
-            </td>
-        </tr>
-    `).join('');
+    resultsContainer.innerHTML = books.map((book, index) => {
+        // Get description
+        let description = book.description || book.first_sentence || 'No description available';
+        if (description.length > 150) {
+            description = description.substring(0, 150) + '...';
+        }
+
+        // Get cover image URL
+        const coverUrl = book.cover_i ? 
+            `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg` : 
+            ''; 
+
+        return `
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4">
+                    <input type="checkbox" class="book-select w-4 h-4 rounded border-gray-300" data-index="${index}">
+                </td>
+                <td class="px-6 py-4">
+                    <div class="w-16 h-20 bg-gray-100 rounded-lg flex items-center justify-center">
+                        ${coverUrl ? `
+                            <img src="${coverUrl}" 
+                                alt="Book cover" 
+                                class="w-16 h-20 object-cover rounded-lg shadow-sm"
+                                onerror="this.parentElement.innerHTML='<i class=\'fas fa-book text-gray-400 text-2xl\'></i>'">
+                        ` : `
+                            <i class="fas fa-book text-gray-400 text-2xl"></i>
+                        `}
+                    </div>
+                </td>
+                <td class="px-6 py-4 text-gray-900">${book.title}</td>
+                <td class="px-6 py-4 text-gray-600">${book.author_name?.[0] || 'Unknown Author'}</td>
+                <td class="px-6 py-4 text-gray-600 max-w-md">
+                    <div class="line-clamp-2 text-sm">${description}</div>
+                </td>
+                <td class="px-6 py-4">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        ${book.language?.[0] || 'Unknown'}
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-gray-600">${book.isbn?.[0] || 'N/A'}</td>
+                <td class="px-6 py-4 text-gray-600">${book.first_publish_year || 'N/A'}</td>
+                <td class="px-6 py-4">
+                    <button onclick="viewBookDetails(${index})" 
+                            class="text-blue-600 hover:text-blue-800 font-medium">
+                        <i class="fas fa-eye mr-1"></i> View
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
 }
 
 function showBookModal(modalHtml) {
@@ -130,20 +142,19 @@ function closeBookModal() {
 
 function viewBookDetails(index) {
     const book = currentBooks[index];
-    
-    // Get description from different possible sources
-    let description = '';
-    if (book.description) {
-        description = typeof book.description === 'object' ? 
-                     book.description.value || '' : book.description;
-    } else if (book.first_sentence) {
-        description = book.first_sentence;
-    }
+    if (!book) return;
 
-    // Create modal HTML
+    // Get description
+    let description = book.description || book.first_sentence || 'No description available';
+
+    // Get cover image URL
+    const coverUrl = book.cover_i ? 
+        `https://covers.openlibrary.org/b/id/${book.cover_i}-L.jpg` : 
+        '';
+
     const modalHtml = `
-        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div class="bg-white rounded-lg max-w-2xl w-full mx-4 overflow-hidden">
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="bookModal">
+            <div class="bg-white rounded-lg max-w-2xl w-full mx-4">
                 <div class="flex justify-between items-center px-6 py-4 border-b">
                     <h3 class="text-xl font-bold text-gray-900">Book Details</h3>
                     <button onclick="closeBookModal()" class="text-gray-400 hover:text-gray-500">
@@ -153,32 +164,29 @@ function viewBookDetails(index) {
                 
                 <div class="p-6">
                     <div class="flex gap-6">
-                        <div class="w-1/3">
-                            <img src="${book.cover_i ? 
-                                `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg` : 
-                                '../assets/images/no-cover.png'}" 
-                                class="w-full rounded-lg shadow-lg"
-                                alt="Book cover">
+                        <div class="w-32 h-40 bg-gray-100 rounded-lg flex items-center justify-center">
+                            ${coverUrl ? `
+                                <img src="${coverUrl}" 
+                                    alt="Book cover"
+                                    class="w-32 h-40 object-cover rounded-lg shadow-sm"
+                                    onerror="this.parentElement.innerHTML='<i class=\'fas fa-book text-gray-400 text-3xl\'></i>'">
+                            ` : `
+                                <i class="fas fa-book text-gray-400 text-3xl"></i>
+                            `}
                         </div>
-                        
-                        <div class="w-2/3">
-                            <h4 class="text-2xl font-bold text-gray-900 mb-2">${book.title}</h4>
-                            
-                            <div class="space-y-3 text-gray-600">
-                                <p><span class="font-medium">Author:</span> ${book.author_name?.[0] || 'Unknown'}</p>
-                                <p><span class="font-medium">ISBN:</span> ${book.isbn?.[0] || 'N/A'}</p>
-                                <p><span class="font-medium">Published:</span> ${book.first_publish_year || 'N/A'}</p>
-                                <p><span class="font-medium">Language:</span> ${book.language?.[0] || 'Unknown'}</p>
-                                <p><span class="font-medium">Publisher:</span> ${book.publisher?.[0] || 'Unknown'}</p>
-                                
-                                <div class="mt-4">
-                                    <p class="font-medium mb-2">Description:</p>
-                                    <p class="text-gray-600 bg-gray-50 p-4 rounded-lg">
-                                        ${description || 'No description available'}
-                                    </p>
-                                </div>
-                            </div>
+                        <div class="flex-1">
+                            <h4 class="text-xl font-bold text-gray-900 mb-2">${book.title}</h4>
+                            <p class="text-gray-600 mb-1">Author: ${book.author_name?.[0] || 'Unknown Author'}</p>
+                            <p class="text-gray-600 mb-1">ISBN: ${book.isbn?.[0] || 'N/A'}</p>
+                            <p class="text-gray-600 mb-1">Published: ${book.first_publish_year || 'N/A'}</p>
+                            <p class="text-gray-600 mb-1">Language: ${book.language?.[0] || 'Unknown'}</p>
+                            <p class="text-gray-600 mb-1">Publisher: ${book.publisher?.[0] || 'N/A'}</p>
                         </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h5 class="font-bold text-gray-900 mb-2">Description</h5>
+                        <p class="text-gray-600">${description}</p>
                     </div>
                 </div>
                 
@@ -196,14 +204,7 @@ function viewBookDetails(index) {
         </div>
     `;
 
-    showBookModal(modalHtml);
-
-    // Add escape key listener
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeBookModal();
-        }
-    });
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
 }
 
 // Function to save book from modal
