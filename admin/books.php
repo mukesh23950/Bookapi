@@ -47,174 +47,156 @@ $page_name = "books";
             <!-- Page Content -->
             <div class="p-8">
                 <!-- Search Section -->
-                <div class="bg-white rounded-lg shadow p-6 mb-6">
-                    <h2 class="text-lg font-bold mb-4">Search Books</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Search Type</label>
-                            <select id="searchType" class="w-full rounded-lg border-gray-300">
-                                <option value="title">Title</option>
-                                <option value="author">Author</option>
-                                <option value="isbn">ISBN</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Language</label>
-                            <select id="language" class="w-full rounded-lg border-gray-300">
-                                <option value="eng">English</option>
-                                <option value="hin">Hindi</option>
-                                <option value="mar">Marathi</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Category</label>
-                            <select id="category" class="w-full rounded-lg border-gray-300">
-                                <option value="fiction">Fiction</option>
-                                <option value="science">Science</option>
-                                <option value="history">History</option>
-                            </select>
-                        </div>
+                <div class="bg-white rounded-xl shadow-lg border border-gray-100 mb-6 overflow-hidden">
+                    <div class="p-6 bg-gradient-to-r from-blue-500 to-indigo-600">
+                        <h2 class="text-2xl font-bold text-white mb-2">Search Books</h2>
+                        <p class="text-blue-100">Search for books by title, author, or ISBN</p>
                     </div>
-                    <div class="mt-4">
-                        <input type="text" id="searchQuery" placeholder="Enter search term..." 
-                               class="w-full rounded-lg border-gray-300 mb-4">
-                        <button onclick="searchBooks()" 
-                                class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
-                            Search Books
-                        </button>
+                    
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Search Type -->
+                            <div class="form-group">
+                                <label class="inline-flex items-center text-sm font-medium text-gray-700 mb-2">
+                                    <svg class="w-5 h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                    </svg>
+                                    Search Type
+                                </label>
+                                <div class="relative">
+                                    <select id="searchType" class="appearance-none w-full bg-gray-50 border border-gray-200 rounded-lg py-3 px-4 pr-8 leading-tight focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
+                                        <option value="title">Title</option>
+                                        <option value="author">Author</option>
+                                        <option value="isbn">ISBN</option>
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Language -->
+                            <div class="form-group">
+                                <label class="inline-flex items-center text-sm font-medium text-gray-700 mb-2">
+                                    <svg class="w-5 h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                                    </svg>
+                                    Language
+                                </label>
+                                <div class="relative">
+                                    <select id="language" class="appearance-none w-full bg-gray-50 border border-gray-200 rounded-lg py-3 px-4 pr-8 leading-tight focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
+                                        <option value="all">All Languages</option>
+                                        <option value="eng">English</option>
+                                        <option value="hin">Hindi</option>
+                                        <option value="mar">Marathi</option>
+                                        <option value="guj">Gujarati</option>
+                                        <option value="ben">Bengali</option>
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Category -->
+                            <div class="form-group">
+                                <label class="inline-flex items-center text-sm font-medium text-gray-700 mb-2">
+                                    <svg class="w-5 h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                                    </svg>
+                                    Category
+                                </label>
+                                <div class="relative">
+                                    <select id="category" class="appearance-none w-full bg-gray-50 border border-gray-200 rounded-lg py-3 px-4 pr-8 leading-tight focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200">
+                                        <option value="all">All Categories</option>
+                                        <option value="fiction">Fiction</option>
+                                        <option value="science">Science</option>
+                                        <option value="history">History</option>
+                                        <option value="biography">Biography</option>
+                                        <option value="technology">Technology</option>
+                                        <option value="business">Business</option>
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Search Input -->
+                        <div class="mt-6">
+                            <div class="relative">
+                                <input type="text" 
+                                       id="searchQuery" 
+                                       placeholder="Enter book title, author or ISBN..." 
+                                       class="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200"
+                                >
+                                <svg class="w-6 h-6 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Search Button -->
+                        <div class="mt-6 flex justify-end">
+                            <button onclick="searchBooks()" 
+                                    class="inline-flex items-center px-8 py-3 bg-gradient-to-r from-indigo-600 to-blue-500 text-white font-medium rounded-lg hover:from-indigo-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transform hover:scale-105 transition-all duration-200">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                </svg>
+                                Search Books
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Results Section -->
-                <div class="bg-white rounded-lg shadow p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-lg font-bold">Search Results</h2>
-                        <button onclick="fetchSelectedBooks()" 
-                                class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
-                            Fetch Selected Books
-                        </button>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead>
-                                <tr class="bg-gray-50">
-                                    <th class="px-4 py-2"><input type="checkbox" id="selectAll"></th>
-                                    <th class="px-4 py-2 text-left">Cover</th>
-                                    <th class="px-4 py-2 text-left">Title</th>
-                                    <th class="px-4 py-2 text-left">Author</th>
-                                    <th class="px-4 py-2 text-left">ISBN</th>
-                                    <th class="px-4 py-2 text-left">Published</th>
-                                    <th class="px-4 py-2 text-left">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="searchResults">
-                                <!-- Results will be populated here -->
-                            </tbody>
-                        </table>
+                <div class="bg-white rounded-xl shadow-lg border border-gray-100 mt-6">
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl font-bold text-gray-800">Search Results</h2>
+                            <button onclick="fetchSelectedBooks()" 
+                                    class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-green-500 text-white font-medium rounded-lg hover:from-green-700 hover:to-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transform hover:scale-105 transition-all duration-200">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                                </svg>
+                                Fetch Selected Books
+                            </button>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-gray-50 border-b border-gray-200">
+                                        <th class="px-4 py-3 text-left">
+                                            <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                        </th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cover</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Author</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Language</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ISBN</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Published</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="searchResults" class="divide-y divide-gray-200">
+                                    <!-- Results will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        let currentBooks = [];
-
-        async function searchBooks() {
-            const searchType = document.getElementById('searchType').value;
-            const query = document.getElementById('searchQuery').value;
-            const language = document.getElementById('language').value;
-            
-            if (!query) return;
-
-            try {
-                const response = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=10&language=${language}`);
-                const data = await response.json();
-                currentBooks = data.docs;
-                displayResults(data.docs);
-            } catch (error) {
-                console.error('Error fetching books:', error);
-            }
-        }
-
-        function displayResults(books) {
-            const tbody = document.getElementById('searchResults');
-            tbody.innerHTML = '';
-
-            books.forEach((book, index) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="px-4 py-2">
-                        <input type="checkbox" class="book-select" data-index="${index}">
-                    </td>
-                    <td class="px-4 py-2">
-                        <img src="https://covers.openlibrary.org/b/id/${book.cover_i}-S.jpg" 
-                             class="w-16 h-20 object-cover" onerror="this.src='../assets/images/no-cover.png'">
-                    </td>
-                    <td class="px-4 py-2">${book.title}</td>
-                    <td class="px-4 py-2">${book.author_name?.[0] || 'Unknown'}</td>
-                    <td class="px-4 py-2">${book.isbn?.[0] || 'N/A'}</td>
-                    <td class="px-4 py-2">${book.first_publish_year || 'N/A'}</td>
-                    <td class="px-4 py-2">
-                        <button onclick="viewBookDetails(${index})" 
-                                class="text-blue-600 hover:text-blue-800">
-                            View Details
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        async function fetchSelectedBooks() {
-            const selected = document.querySelectorAll('.book-select:checked');
-            const books = Array.from(selected).map(checkbox => {
-                const index = checkbox.dataset.index;
-                return currentBooks[index];
-            });
-
-            // Prepare books data for database
-            const booksData = books.map(book => ({
-                title: book.title,
-                author: book.author_name?.[0] || 'Unknown',
-                isbn: book.isbn?.[0] || null,
-                published_year: book.first_publish_year || null,
-                cover_id: book.cover_i || null,
-                description: book.description || null,
-                language: book.language?.[0] || null
-            }));
-
-            try {
-                const response = await fetch('../api/save-books.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(booksData)
-                });
-
-                const result = await response.json();
-                if (result.success) {
-                    alert('Selected books have been saved to database!');
-                } else {
-                    alert('Error saving books: ' + result.message);
-                }
-            } catch (error) {
-                console.error('Error saving books:', error);
-                alert('Error saving books to database');
-            }
-        }
-
-        function viewBookDetails(index) {
-            const book = currentBooks[index];
-            // Implement a modal or redirect to show full book details
-        }
-
-        // Handle select all checkbox
-        document.getElementById('selectAll').addEventListener('change', function() {
-            const checkboxes = document.querySelectorAll('.book-select');
-            checkboxes.forEach(checkbox => checkbox.checked = this.checked);
-        });
-    </script>
+    <script src="js/books.js"></script>
 </body>
 </html> 
