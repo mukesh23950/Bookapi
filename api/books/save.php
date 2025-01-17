@@ -9,6 +9,25 @@ if (!isLoggedIn() || $_SESSION['user_role'] !== 'admin') {
     exit;
 }
 
+// Function to download and save cover image
+function downloadAndSaveCover($cover_id) {
+    $cover_url = "https://covers.openlibrary.org/b/id/{$cover_id}-L.jpg";
+    $save_path = "../../assets/images/covers/{$cover_id}.jpg";
+    
+    // Create directory if it doesn't exist
+    if (!file_exists("../../assets/images/covers")) {
+        mkdir("../../assets/images/covers", 0777, true);
+    }
+    
+    // Download and save image
+    $image_data = file_get_contents($cover_url);
+    if ($image_data) {
+        file_put_contents($save_path, $image_data);
+        return true;
+    }
+    return false;
+}
+
 try {
     // Get JSON data
     $raw_data = file_get_contents('php://input');
@@ -53,6 +72,11 @@ try {
                 }
             }
 
+            // Download cover image if cover_id exists
+            if (!empty($book['cover_id'])) {
+                downloadAndSaveCover($book['cover_id']);
+            }
+
             $sql = "INSERT INTO books (
                 title, 
                 author, 
@@ -80,7 +104,7 @@ try {
             $isbn = $book['isbn'] ?? '';
             $published_year = $book['published_year'] ?? '';
             $cover_id = $book['cover_id'] ?? '';
-            $local_cover_path = $book['local_cover_path'] ?? '';
+            $local_cover_path = !empty($cover_id) ? "/assets/images/covers/{$cover_id}.jpg" : '';
             $description = $book['description'] ?? '';
             $publisher = $book['publisher'] ?? '';
             $page_count = $book['page_count'] ?? null;

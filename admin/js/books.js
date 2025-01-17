@@ -209,20 +209,24 @@ function viewBookDetails(index) {
 
 // Function to save book from modal
 async function saveBookFromModal(index) {
+    const book = currentBooks[index];
+    
     try {
         showLoadingModal('Saving book...');
         
-        const book = currentBooks[index];
+        // Get description from modal
+        const modalDescription = document.querySelector('#bookModal .text-gray-600').textContent;
+        
         const bookData = {
             books: [{
                 title: book.title,
                 author: book.author_name?.[0] || '',
                 isbn: book.isbn?.[0] || '',
-                published_year: book.first_publish_year || '',
+                published_year: book.first_publish_year?.toString() || '',
                 cover_id: book.cover_i?.toString() || '',
                 local_cover_path: book.cover_i ? 
                     `/assets/images/covers/${book.cover_i}.jpg` : '',
-                description: book.description || '',
+                description: modalDescription, // Use description from modal
                 publisher: book.publisher?.[0] || '',
                 page_count: book.number_of_pages || null,
                 categories: book.subject?.[0] || '',
@@ -232,6 +236,8 @@ async function saveBookFromModal(index) {
             }]
         };
 
+        console.log('Sending book data:', bookData); // Debug log
+
         const response = await fetch('../api/books/save.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -239,11 +245,12 @@ async function saveBookFromModal(index) {
         });
 
         const result = await response.json();
+        console.log('Save result:', result); // Debug log
         
         closeLoadingModal();
+        closeBookModal();
         
         if (result.success) {
-            closeBookModal();
             alert('Book saved successfully!');
         } else {
             throw new Error(result.message);
@@ -251,6 +258,7 @@ async function saveBookFromModal(index) {
 
     } catch (error) {
         closeLoadingModal();
+        closeBookModal();
         console.error('Error:', error);
         alert('Error saving book: ' + error.message);
     }
@@ -271,15 +279,20 @@ async function saveSelectedBooks() {
             const index = parseInt(checkbox.dataset.index);
             const book = currentBooks[index];
             
+            // Get description from the table cell
+            const row = checkbox.closest('tr');
+            const descriptionCell = row.querySelector('td:nth-child(5)'); // Adjust index if needed
+            const description = descriptionCell.textContent.trim();
+            
             return {
                 title: book.title,
                 author: book.author_name?.[0] || '',
                 isbn: book.isbn?.[0] || '',
-                published_year: book.first_publish_year || '',
+                published_year: book.first_publish_year?.toString() || '',
                 cover_id: book.cover_i?.toString() || '',
                 local_cover_path: book.cover_i ? 
                     `/assets/images/covers/${book.cover_i}.jpg` : '',
-                description: book.description || '',
+                description: description,
                 publisher: book.publisher?.[0] || '',
                 page_count: book.number_of_pages || null,
                 categories: book.subject?.[0] || '',
@@ -289,6 +302,8 @@ async function saveSelectedBooks() {
             };
         });
 
+        console.log('Sending books data:', { books }); // Debug log
+
         const response = await fetch('../api/books/save.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -296,11 +311,11 @@ async function saveSelectedBooks() {
         });
 
         const result = await response.json();
+        console.log('Save result:', result); // Debug log
         
         closeLoadingModal();
         
         if (result.success) {
-            // Clear selections after successful save
             document.querySelectorAll('.book-select').forEach(cb => cb.checked = false);
             document.getElementById('selectAll').checked = false;
             
