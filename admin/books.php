@@ -51,6 +51,7 @@ include '../includes/header.php';
                                 <span class="text-sm text-gray-600">Search Type</span>
                             </div>
                             <select id="searchType" class="w-full bg-gray-50 border-0 rounded-lg py-3 px-4">
+                                <option value="q">Global Search</option>
                                 <option value="title">Title</option>
                                 <option value="author">Author</option>
                                 <option value="isbn">ISBN</option>
@@ -64,6 +65,16 @@ include '../includes/header.php';
                             </div>
                             <select id="language" class="w-full bg-gray-50 border-0 rounded-lg py-3 px-4">
                                 <option value="all">All Languages</option>
+                                <option value="eng">English</option>
+                                <option value="hin">Hindi</option>
+                                <option value="spa">Spanish</option>
+                                <option value="fre">French</option>
+                                <option value="ger">German</option>
+                                <option value="rus">Russian</option>
+                                <option value="chi">Chinese</option>
+                                <option value="jpn">Japanese</option>
+                                <option value="ara">Arabic</option>
+                                <option value="kor">Korean</option>
                             </select>
                         </div>
 
@@ -74,6 +85,23 @@ include '../includes/header.php';
                             </div>
                             <select id="category" class="w-full bg-gray-50 border-0 rounded-lg py-3 px-4">
                                 <option value="all">All Categories</option>
+                                <option value="fiction">Fiction</option>
+                                <option value="nonfiction">Non-Fiction</option>
+                                <option value="science">Science</option>
+                                <option value="history">History</option>
+                                <option value="biography">Biography</option>
+                                <option value="business">Business</option>
+                                <option value="technology">Technology</option>
+                                <option value="computers">Computers</option>
+                                <option value="art">Art & Design</option>
+                                <option value="philosophy">Philosophy</option>
+                                <option value="religion">Religion</option>
+                                <option value="education">Education</option>
+                                <option value="children">Children</option>
+                                <option value="cooking">Cooking</option>
+                                <option value="health">Health & Fitness</option>
+                                <option value="self_help">Self Help</option>
+                                <option value="travel">Travel</option>
                             </select>
                         </div>
                     </div>
@@ -82,7 +110,7 @@ include '../includes/header.php';
                         <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                         <input type="text" id="searchQuery" 
                                class="w-full bg-gray-50 border-0 rounded-lg pl-12 pr-32 py-3"
-                               placeholder="yoga">
+                               placeholder="Search for books...">
                         <button onclick="searchBooks()" 
                                 class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 text-white px-8 py-2 rounded-lg hover:bg-blue-700">
                             Search Books

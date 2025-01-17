@@ -4,6 +4,8 @@ const resultsPerPage = 20;
 let totalResults = 0;
 let lastSearchQuery = '';
 let lastSearchType = '';
+let availableLanguages = new Set();
+let availableCategories = new Set();
 
 // Show loading modal
 function showLoadingModal(message = 'Loading...') {
@@ -29,37 +31,90 @@ function closeLoadingModal() {
     }
 }
 
+// Add this function to initialize dropdowns
+function initializeDropdowns() {
+    const languageSelect = document.getElementById('language');
+    const categorySelect = document.getElementById('category');
+    
+    // Clear existing options except first one
+    languageSelect.innerHTML = '<option value="all">All Languages</option>';
+    categorySelect.innerHTML = '<option value="all">All Categories</option>';
+    
+    // Add languages
+    Array.from(availableLanguages).sort().forEach(lang => {
+        languageSelect.add(new Option(lang, lang));
+    });
+    
+    // Add categories
+    Array.from(availableCategories).sort().forEach(cat => {
+        categorySelect.add(new Option(cat, cat));
+    });
+}
+
 async function searchBooks(page = 1) {
     currentPage = page;
     const searchType = document.getElementById('searchType').value;
     const query = document.getElementById('searchQuery').value.trim();
+    const language = document.getElementById('language').value;
+    const category = document.getElementById('category').value;
     
     if (!query) {
         alert('Please enter a search term');
         return;
     }
 
-    // Save last search parameters
-    lastSearchQuery = query;
-    lastSearchType = searchType;
-
     try {
-        showLoadingModal('Searching books...'); // Use new loading modal
+        showLoadingModal('Searching books...');
         
-        const response = await fetch(
-            `https://openlibrary.org/search.json?${searchType}=${encodeURIComponent(query)}&page=${page}&limit=${resultsPerPage}`
-        );
+        // Build base search URL based on search type
+        let searchUrl;
+        if (searchType === 'q') {
+            // Global search - will search across all fields
+            searchUrl = `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}`;
+        } else if (searchType === 'isbn') {
+            // ISBN specific search
+            searchUrl = `https://openlibrary.org/search.json?isbn=${encodeURIComponent(query)}`;
+        } else {
+            // Title or Author specific search
+            searchUrl = `https://openlibrary.org/search.json?${searchType}=${encodeURIComponent(query)}`;
+        }
+
+        // Add common parameters
+        searchUrl += `&page=${page}&limit=${resultsPerPage}`;
         
+        // Add filters if selected
+        if (language !== 'all') {
+            searchUrl += `&language=${encodeURIComponent(language)}`;
+        }
+        if (category !== 'all') {
+            searchUrl += `&subject=${encodeURIComponent(category)}`;
+        }
+
+        console.log('Search URL:', searchUrl); // Debug log
+
+        const response = await fetch(searchUrl);
         const data = await response.json();
+        
+        // Process and display results
         totalResults = data.numFound;
         currentBooks = data.docs;
         
+        // Update available languages and categories from results
+        currentBooks.forEach(book => {
+            if (book.language && Array.isArray(book.language)) {
+                book.language.forEach(lang => availableLanguages.add(lang));
+            }
+            if (book.subject && Array.isArray(book.subject)) {
+                book.subject.forEach(cat => availableCategories.add(cat));
+            }
+        });
+
         displaySearchResults(currentBooks);
         displayPagination();
         
-        closeLoadingModal(); // Close loading modal
+        closeLoadingModal();
     } catch (error) {
-        closeLoadingModal(); // Make sure to close modal on error
+        closeLoadingModal();
         console.error('Error:', error);
         alert('Error searching books: ' + error.message);
     }
@@ -70,9 +125,6 @@ function displaySearchResults(books) {
     const tbody = document.getElementById('searchResults');
     
     tbody.innerHTML = books.map((book, index) => {
-        // Debug log to see exact book data structure
-        console.log('Book Data:', book);
-        
         // Get description text
         let description = '';
         if (book.description) {
@@ -84,9 +136,6 @@ function displaySearchResults(books) {
         } else if (book.notes) {
             description = book.notes;
         }
-
-        // Debug log for description
-        console.log('Description found:', description);
 
         // Ensure description is a string
         description = String(description || 'No description available').trim();
@@ -239,6 +288,10 @@ async function saveBookFromModal(index) {
         // Get description from modal
         const modalDescription = document.querySelector('#bookModal .text-gray-600').textContent;
         
+        // Convert page count to integer or null
+        const pageCount = book.number_of_pages_median || book.number_of_pages;
+        const parsedPageCount = pageCount ? parseInt(pageCount) : null;
+        
         const bookData = {
             books: [{
                 title: book.title,
@@ -248,9 +301,9 @@ async function saveBookFromModal(index) {
                 cover_id: book.cover_i?.toString() || '',
                 local_cover_path: book.cover_i ? 
                     `/assets/images/covers/${book.cover_i}.jpg` : '',
-                description: modalDescription, // Use description from modal
+                description: modalDescription,
                 publisher: book.publisher?.[0] || '',
-                page_count: book.number_of_pages || null,
+                page_count: parsedPageCount, // Send as integer or null
                 categories: book.subject?.[0] || '',
                 rating: null,
                 language: book.language?.[0] || '',
@@ -303,8 +356,12 @@ async function saveSelectedBooks() {
             
             // Get description from the table cell
             const row = checkbox.closest('tr');
-            const descriptionCell = row.querySelector('td:nth-child(5)'); // Adjust index if needed
+            const descriptionCell = row.querySelector('td:nth-child(5)');
             const description = descriptionCell.textContent.trim();
+            
+            // Convert page count to integer or null
+            const pageCount = book.number_of_pages_median || book.number_of_pages;
+            const parsedPageCount = pageCount ? parseInt(pageCount) : null;
             
             return {
                 title: book.title,
@@ -316,7 +373,7 @@ async function saveSelectedBooks() {
                     `/assets/images/covers/${book.cover_i}.jpg` : '',
                 description: description,
                 publisher: book.publisher?.[0] || '',
-                page_count: book.number_of_pages || null,
+                page_count: parsedPageCount, // Send as integer or null
                 categories: book.subject?.[0] || '',
                 rating: null,
                 language: book.language?.[0] || '',
@@ -362,6 +419,37 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.book-select').forEach(cb => cb.checked = e.target.checked);
         });
     }
+
+    // Add enter key support for search
+    document.getElementById('searchQuery').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            searchBooks();
+        }
+    });
+
+    // Add change listeners for filters
+    document.getElementById('language').addEventListener('change', () => searchBooks(1));
+    document.getElementById('category').addEventListener('change', () => searchBooks(1));
+    document.getElementById('searchType').addEventListener('change', function() {
+        const searchInput = document.getElementById('searchQuery');
+        switch(this.value) {
+            case 'q':
+                searchInput.placeholder = 'Search across all fields...';
+                break;
+            case 'isbn':
+                searchInput.placeholder = 'Enter ISBN...';
+                break;
+            case 'author':
+                searchInput.placeholder = 'Enter author name...';
+                break;
+            case 'title':
+                searchInput.placeholder = 'Enter book title...';
+                break;
+        }
+    });
+
+    // Add search button click handler
+    document.querySelector('button[onclick="searchBooks()"]').addEventListener('click', () => searchBooks(1));
 });
 
 function displayPagination() {
